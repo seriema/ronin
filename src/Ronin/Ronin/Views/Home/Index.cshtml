@@ -6,36 +6,50 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/knockout")
-    <script type="text/javascript">
-        function GamesViewModel() {
-            var self = this;
-            self.games = ko.observableArray([]);
-            self.addGame = function () {
-                $.post("api/games",
-                    $("#addGame").serialize(),
-                    function (value) {
-                        self.games.push(value);
-                    },
-                    "json");
-            }
-            self.removeGame = function (game) {
-                $.ajax({
-                    type: "DELETE",
-                    url: game.Self,
-                    success: function () {
-                        self.games.remove(game);
-                    }
-                });
-            }
+	<script type="text/javascript">
+		var token = $('input[name="__RequestVerificationToken"]').val();
 
+		function GamesViewModel() {
+			var self = this;
+			self.games = ko.observableArray([]);
+			self.addGame = function() {
+				$.ajax({
+					url: "/api/games",
+					type: "POST",
+					data: $('#addGame').serialize(),
+					dataType: "json",
+					contentType: "application/json: charset=utf-8",
+					headers: { RequestVerificationToken: token }
+				}).done(function(value) {
+					self.games.push(value);
+				});
+			};
+			self.removeGame = function(game) {
+				$.ajax({
+					url: "/api/games",
+					type: "DELETE",
+					dataType: "json",
+					contentType: "application/json: charset=utf-8",
+					headers: { RequestVerificationToken: token }
+				}).done(function() {
+					self.games.remove(game);
+				});
+			};
 
-            $.getJSON("api/games", function (data) {
-                self.games(data);
-            });
-        }
-        ko.applyBindings(new GamesViewModel());
-</script>
+			$.ajax({
+				url: "/api/games",
+				type: "GET",
+				dataType: "json",
+				contentType: "application/json: charset=utf-8",
+				headers: { RequestVerificationToken: token }
+			}).done(function (data) {
+				self.games(data);
+			});
+		}
+		ko.applyBindings(new GamesViewModel());
+	</script>
 }
+
 <ul id="games" data-bind="foreach: games">
     <li class="ui-widget-content ui-corner-all">
         <h1 data-bind="text: Name" class="ui-widget-header"></h1>
@@ -48,26 +62,27 @@
     </li>
 </ul>
 <form id="addGame" data-bind="submit: addGame">
-    <fieldset>
-        <legend>Add New Game</legend>
-        <ol>
-            <li>
-                <label for="Name">Name</label>
-                <input type="text" name="Name" />
-            </li>
-            <li>
-                <label for="Developer">Developer</label>
-                <input type="text" name="Developer" >
-            </li>
-            <li>
-                <label for="Description">Description</label>
-                <input type="text" name="Description" />
-            </li>
-            <li>
-                <label for="Publisher">Publisher</label>
-                <input type="text" name="Publisher" />
-            </li>
-        </ol>
-        <input type="submit" value="Add" />
-    </fieldset>
+	@Html.AntiForgeryToken();
+	<fieldset>
+		<legend>Add New Game</legend>
+		<ol>
+			<li>
+				<label for="Name">Name</label>
+				<input type="text" name="Name" />
+			</li>
+			<li>
+				<label for="Developer">Developer</label>
+				<input type="text" name="Developer" >
+			</li>
+			<li>
+				<label for="Description">Description</label>
+				<input type="text" name="Description" />
+			</li>
+			<li>
+				<label for="Publisher">Publisher</label>
+				<input type="text" name="Publisher" />
+			</li>
+		</ol>
+		<input type="submit" value="Add" />
+	</fieldset>
 </form>

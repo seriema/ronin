@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Helpers;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
@@ -51,21 +53,18 @@ namespace Ronin.Filters
 
 		private void ValidateRequestHeader(HttpRequestMessage request)
 		{
-			string cookieToken = String.Empty;
+			string cookieToken = string.Empty;
+			var firstOrDefault = request.Headers.GetCookies().Select(c => c[AntiForgeryConfig.CookieName]).FirstOrDefault();
+			if (firstOrDefault != null)
+				cookieToken = firstOrDefault.Value;
+
 			string formToken = String.Empty;
 			IEnumerable<string> tokenHeaders;
 			if (request.Headers.TryGetValues("RequestVerificationToken", out tokenHeaders))
 			{
 				string tokenValue = tokenHeaders.FirstOrDefault();
 				if (!String.IsNullOrEmpty(tokenValue))
-				{
-					string[] tokens = tokenValue.Split(':');
-					if (tokens.Length == 2)
-					{
-						cookieToken = tokens[0].Trim();
-						formToken = tokens[1].Trim();
-					}
-				}
+					formToken = tokenValue.Trim();
 			}
 
 
