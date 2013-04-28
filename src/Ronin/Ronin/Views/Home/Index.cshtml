@@ -1,0 +1,73 @@
+﻿@model IEnumerable<Ronin.Models.Game>
+
+@{
+    ViewBag.Title = "Home";
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/knockout")
+    <script type="text/javascript">
+        function GamesViewModel() {
+            var self = this;
+            self.games = ko.observableArray([]);
+            self.addGame = function () {
+                $.post("api/games",
+                    $("#addGame").serialize(),
+                    function (value) {
+                        self.games.push(value);
+                    },
+                    "json");
+            }
+            self.removeGame = function (game) {
+                $.ajax({
+                    type: "DELETE",
+                    url: game.Self,
+                    success: function () {
+                        self.games.remove(game);
+                    }
+                });
+            }
+
+
+            $.getJSON("api/games", function (data) {
+                self.games(data);
+            });
+        }
+        ko.applyBindings(new GamesViewModel());
+</script>
+}
+<ul id="games" data-bind="foreach: games">
+    <li class="ui-widget-content ui-corner-all">
+        <h1 data-bind="text: Name" class="ui-widget-header"></h1>
+        <div><span data-bind="text: $data.Developer || 'Developer?'"></span></div>
+        <div>
+            <span data-bind="text: $data.Description || 'Description?'"></span>,
+            <span data-bind="text: $data.Publisher || 'Publisher?'"></span>
+        </div>
+        <p><a data-bind="attr: { href: Self }, click: $root.removeGame" class="removeGame ui-state-default ui-corner-all">Remove</a></p>
+    </li>
+</ul>
+<form id="addGame" data-bind="submit: addGame">
+    <fieldset>
+        <legend>Add New Game</legend>
+        <ol>
+            <li>
+                <label for="Name">Name</label>
+                <input type="text" name="Name" />
+            </li>
+            <li>
+                <label for="Developer">Developer</label>
+                <input type="text" name="Developer" >
+            </li>
+            <li>
+                <label for="Description">Description</label>
+                <input type="text" name="Description" />
+            </li>
+            <li>
+                <label for="Publisher">Publisher</label>
+                <input type="text" name="Publisher" />
+            </li>
+        </ol>
+        <input type="submit" value="Add" />
+    </fieldset>
+</form>
