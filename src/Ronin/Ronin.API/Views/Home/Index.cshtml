@@ -18,7 +18,6 @@
 					type: "POST",
 					data: $('#addGame').serialize(),
 					dataType: "json",
-					contentType: "application/json: charset=utf-8",
 					headers: { RequestVerificationToken: token }
 				}).done(function(value) {
 					self.games.push(value);
@@ -26,10 +25,8 @@
 			};
 			self.removeGame = function(game) {
 				$.ajax({
-					url: "/api/games",
+					url: game.Self,
 					type: "DELETE",
-					dataType: "json",
-					contentType: "application/json: charset=utf-8",
 					headers: { RequestVerificationToken: token }
 				}).done(function() {
 					self.games.remove(game);
@@ -61,8 +58,8 @@
         <p><a data-bind="attr: { href: Self }, click: $root.removeGame" class="removeGame ui-state-default ui-corner-all">Remove</a></p>
     </li>
 </ul>
-<form id="addGame" data-bind="submit: addGame">
 	@Html.AntiForgeryToken();
+<form id="addGame" data-bind="submit: addGame">
 	<fieldset>
 		<legend>Add New Game</legend>
 		<ol>

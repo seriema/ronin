@@ -64,7 +64,7 @@ namespace Ronin.Controllers
         // POST api/Games
         public HttpResponseMessage PostGame(Game game)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && game != null)
             {
                 db.Games.Add(game);
                 db.SaveChanges();
